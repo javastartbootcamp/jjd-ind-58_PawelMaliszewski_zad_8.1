@@ -1,7 +1,5 @@
 package pl.javastart.task;
 
-import java.util.*;
-
 public class UniversityApp {
 
     private static final int MAX_LECTURES = 110;
@@ -41,6 +39,7 @@ public class UniversityApp {
      * @param name       - nazwa przedmiotu (np. "Podstawy programowania")
      * @param lecturerId - identyfikator prowadzącego. Musi zostać wcześniej utworzony za pomocą metody {@link #createLecturer(int, String, String, String)}
      */
+
     public void createGroup(String code, String name, int lecturerId) {
         if (groupCount == 0) {
             groups[groupCount] = new Group(code, name, lecturers[lecturerId]);
@@ -114,7 +113,7 @@ public class UniversityApp {
                 break;
             }
             if (isGroupSameAsCode(i, groupCode)) {
-                String info = groups[i].groupInfo() + groups[i].lecturer.pirntInfo();
+                String info = groups[i].groupInfo() + groups[i].lecturer.pirntinfo();
                 System.out.println(info);
                 break;
             }
@@ -136,6 +135,7 @@ public class UniversityApp {
      * @param groupCode    - kod grupy
      * @param grade        - ocena
      */
+
     public void addGrade(int studentIndex, String groupCode, double grade) {
         if (groupCount == 0) {
             System.out.println("Grupa " + groupCode + " nie istnieje");
@@ -176,6 +176,7 @@ public class UniversityApp {
      *
      * @param index - numer indesku studenta dla którego wyświetlić oceny
      */
+
     public void printGradesForStudent(int index) {
         double[] gradeSum = new double[groupCount];
         for (int i = 0; i < groupCount; i++) {
@@ -197,6 +198,7 @@ public class UniversityApp {
      *
      * @param groupCode - kod grupy, dla której wyświetlić oceny
      */
+
     public void printGradesForGroup(String groupCode) {
         if (groupCount == 0) {
             System.out.println("Grupa " + groupCode + " nie istnieje");
@@ -220,6 +222,7 @@ public class UniversityApp {
      * 179234 Dawid Donald
      * 189521 Anna Kowalska
      */
+
     public void printAllStudents() {
         int newArrayLength = 0;
         for (int i = 0; i < groupCount; i++) {
@@ -249,7 +252,7 @@ public class UniversityApp {
         Student[] finalPrint = new Student[finalPrintArraySize];
         int index = 0;
         for (int i = 0; i < printStudents.length; i++) {
-            if (printStudents[i] != null ) {
+            if (printStudents[i] != null) {
                 finalPrint[index] = printStudents[i];
                 index++;
             }
@@ -257,12 +260,12 @@ public class UniversityApp {
         for (Student student : finalPrint) {
             student.printStudentInfo();
         }
+    }
 //        for (int i = 0; i < printStudents.length; i++) { // czy tak bedzie lepiej ???
 //            if (printStudents[i] != null) {
 //                printStudents[i].printStudentInfo();
 //            }
 //        }
-    }
 
     boolean isGroupSameAsCode(int index, String code) {
         return groups[index].getCode().equals(code);
