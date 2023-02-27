@@ -158,11 +158,6 @@ public class UniversityApp {
                             break;
                         }
                     }
-
-//                    } else {
-//                        System.out.println("Student o indeksie" + studentIndex
-//                                + " nie jest zapisany do grupy" + groupCode);
-//                    }
                 }
             }
         }
@@ -211,7 +206,6 @@ public class UniversityApp {
                 }
             }
         }
-
     }
 
     /**
