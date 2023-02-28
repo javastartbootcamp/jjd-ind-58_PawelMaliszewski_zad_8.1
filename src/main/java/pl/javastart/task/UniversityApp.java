@@ -231,6 +231,17 @@ public class UniversityApp {
                 loopCounter++;
             }
         }
+
+        for (int i = 0; i < printStudents.length; i++) {
+            Student[] tmp = new Student[printStudents.length];
+            for (int j = printStudents.length - 1; j > i; j--) {
+                if (printStudents[j].getIndex() < printStudents[j - 1].getIndex()) {
+                    tmp[1] = printStudents[j - 1];
+                    printStudents[j - 1] = printStudents[i];
+                    printStudents[i] = tmp[1];
+                }
+            }
+        }
         for (int i = 0; i < printStudents.length - 1; i++) {
             if (printStudents[i].getIndex() == printStudents[(i + 1 % printStudents.length)].getIndex()) {
                 printStudents[i] = null;
