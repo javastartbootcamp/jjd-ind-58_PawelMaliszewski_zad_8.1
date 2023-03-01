@@ -61,6 +61,10 @@ public class Group {
         this.lecturer = lecturer;
     }
 
+    public int getStudentsCounter() {
+        return studentsCounter;
+    }
+
     public Student[] getStudents() {
         return students;
     }
