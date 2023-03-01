@@ -1,13 +1,21 @@
 package pl.javastart.task;
 
+import java.util.Objects;
+
 public class UniversityApp {
 
     private static final int MAX_LECTURES = 110;
     private static final int MAX_GROUPS = 110;
+    private static final int MAX_GRADES = 20;
+    private static final int MAX_ADDEDSTUDENTS = 200;
     private int lectureCount = 0;
     Lecturer[] lecturers = new Lecturer[MAX_LECTURES];
     private int groupCount = 0;
     Group[] groups = new Group[MAX_GROUPS];
+    private int gradesCount = 0;
+    Grade[] grades = new Grade[MAX_GRADES];
+    private int studentsPrintListCounter = 0;
+    Student[] studentsPrintList = new Student[MAX_ADDEDSTUDENTS];
 
     /**
      * Tworzy prowadzącego zajęcia.
@@ -20,12 +28,24 @@ public class UniversityApp {
      * @param lastName  - nazwisko prowadzącego
      */
     public void createLecturer(int id, String degree, String firstName, String lastName) {
-        if (id > 0 && id > lectureCount && id < lectureCount + 2) {
-            lecturers[id] = new Lecturer(firstName, lastName, id, degree);
-            lectureCount++;
-        } else if (id > 0 && id <= lectureCount) {
+        Lecturer lecturer = findLecturer(id);
+        if (lecturer != null) {
             System.out.println("Prowadzący z id " + id + " już istnieje");
+        } else {
+            lecturers[lectureCount] = new Lecturer(firstName, lastName, id, degree);
+            lectureCount++;
         }
+    }
+
+    private Lecturer findLecturer(int id) {
+        for (Lecturer lecturer : lecturers) {
+            if (lecturer == null) {
+                return null;
+            } else if (Objects.equals(lecturer.getId(), id)) {
+                return lecturer;
+            }
+        }
+        return null;
     }
 
     /**
@@ -41,23 +61,26 @@ public class UniversityApp {
      */
 
     public void createGroup(String code, String name, int lecturerId) {
-        if (groupCount == 0) {
-            groups[groupCount] = new Group(code, name, lecturers[lecturerId]);
+        Group group = findGroupByCode(code);
+        if (group != null) {
+            System.out.println("Grupa " + code + " już istnieje");
+        } else if (findLecturer(lecturerId) == null) {
+            System.out.println("Prowadzący o id " + lecturerId + " nie istnieje");
+        } else {
+            groups[groupCount] = new Group(code, name, findLecturer(lecturerId));
             groupCount++;
-        } else if (groupCount > 0) {
-            for (int i = 0; i < groupCount; i++) {
-                if (isGroupSameAsCode(i, code)) {
-                    System.out.println("Grupa " + code + " już istnieje");
-                    break;
-                } else if (lecturers[lecturerId] == null) {
-                    System.out.println("Prowadzący o id " + lecturerId + " nie istnieje");
-                } else {
-                    groups[groupCount] = new Group(code, name, lecturers[lecturerId]);
-                    groupCount++;
-                    break;
-                }
+        }
+    }
+
+    private Group findGroupByCode(String code) {
+        for (Group group : groups) {
+            if (group == null) {
+                return null;
+            } else if (Objects.equals(group.getCode(), code)) {
+                return group;
             }
         }
+        return  null;
     }
 
     /**
@@ -72,20 +95,19 @@ public class UniversityApp {
      */
 
     public void addStudentToGroup(int index, String groupCode, String firstName, String lastName) {
-        if (groupCount == 0) {
+        if (findGroupByCode(groupCode) == null) {
             System.out.println("Grupa " +  groupCode +  " nie istnieje");
         }
         for (int i = 0; i < groupCount; i++) {
-            if (isGroupSameAsCode(i, groupCode)) {
-                if (!groups[i].checkIfStudentExists(index)) {
-                    groups[i].addStudent(index, firstName, lastName);
-                    break;
-                } else {
-                    System.out.println("Student o indeksie " + index + " jest już w grupie " + groupCode);
-                }
+            if (!groups[i].checkIfStudentExists(index)) {
+                groups[i].addStudent(index, firstName, lastName);
+                studentsPrintList[studentsPrintListCounter] = new Student(firstName, lastName, index);
+                studentsPrintListCounter++;
+                break;
+            } else {
+                System.out.println("Student o indeksie " + index + " jest już w grupie " + groupCode);
             }
         }
-
     }
 
     /**
@@ -104,21 +126,13 @@ public class UniversityApp {
      */
 
     public void printGroupInfo(String groupCode) {
-        if (groupCount == 0) {
+        Group group = findGroupByCode(groupCode);
+        if (group == null) {
             System.out.println("Grupa " + groupCode +  " nie znaleziona");
+        } else {
+            String info = group.groupInfo() + group.getLecturer().pirntinfo();
+            System.out.println(info);
         }
-        for (int i = 0; i < groupCount + 1; i++) {
-            if (groups[i] == null) {
-                System.out.println("Grupa " + groupCode +  " nie znaleziona");
-                break;
-            }
-            if (isGroupSameAsCode(i, groupCode)) {
-                String info = groups[i].groupInfo() + groups[i].lecturer.pirntinfo();
-                System.out.println(info);
-                break;
-            }
-        }
-
     }
 
     /**
@@ -137,30 +151,36 @@ public class UniversityApp {
      */
 
     public void addGrade(int studentIndex, String groupCode, double grade) {
-        if (groupCount == 0) {
+        Group group = findGroupByCode(groupCode);
+        if (group != null) {
+            Student student = group.findStudenByIndex(studentIndex);
+            boolean gradesCheck = checkIfGredeExists(student, group);
+            if (!gradesCheck) {
+                if (student != null) {
+                    grades[gradesCount] = new Grade(student, group, grade);
+                    gradesCount++;
+                } else {
+                    System.out.println("Student o indeksie " + studentIndex + " nie jest zapisany do grupy "
+                            + groupCode);
+                }
+            } else {
+                System.out.println("Student o indeksie " + studentIndex
+                        + " ma już wystawioną ocenę dla grupy " + groupCode);
+            }
+        } else {
             System.out.println("Grupa " + groupCode + " nie istnieje");
         }
-        for (int i = 0; i < groupCount; i++) {
-            if (isGroupSameAsCode(i, groupCode)) {
-                if (!groups[i].checkIfStudentExists(studentIndex)) {
-                    System.out.println("Student o indeksie " + studentIndex
-                            + " nie jest zapisany do grupy " + groupCode);
-                    break;
-                }
-                for (int j = 0; j < groups[i].getStudentsCounter(); j++) {
-                    if (groups[i].students[j].getIndex() == studentIndex) {
+    }
 
-                        if (groups[i].students[j].getGrade() > 0.0) {
-                            System.out.println("Student o indeksie " + studentIndex
-                                    + " ma już wystawioną ocenę dla grupy " + groupCode);
-                        } else {
-                            groups[i].students[j].setGrade(grade);
-                            break;
-                        }
-                    }
-                }
+    private boolean checkIfGredeExists(Student student, Group group) {
+        for (Grade grade : grades) {
+            if (grade == null) {
+                return false;
+            } else if (grade.getStudent() == student && grade.getGroup() == group && grade.getGrade() != 0) {
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -173,15 +193,11 @@ public class UniversityApp {
      */
 
     public void printGradesForStudent(int index) {
-        double[] gradeSum = new double[groupCount];
-        for (int i = 0; i < groupCount; i++) {
-            for (int j = 0; j < groups[i].getStudentsCounter(); j++) {
-                if (groups[i].students[j].getIndex() == index)
-                    gradeSum[i] += groups[i].students[j].getGrade();
+        for (int i = 0; i < gradesCount; i++) {
+            if (grades[i].getStudent().getIndex() == index) {
+                System.out.println(grades[i].grupInfo());
             }
-            System.out.println(groups[i].getName() + ": " + gradeSum[i]);
         }
-
     }
 
     /**
@@ -195,14 +211,13 @@ public class UniversityApp {
      */
 
     public void printGradesForGroup(String groupCode) {
-        if (groupCount == 0) {
+        Group group = findGroupByCode(groupCode);
+        if (group == null) {
             System.out.println("Grupa " + groupCode + " nie istnieje");
-        }
-        for (int i = 0; i < groupCount; i++) {
-            if (isGroupSameAsCode(i, groupCode)) {
-                for (int j = 0; j < groups[i].getStudentsCounter(); j++) {
-                    System.out.println(groups[i].students[j].getFirstName() + " "
-                            + groups[i].students[j].getLastName() + ": " + groups[i].students[j].getGrade());
+        } else {
+            for (int i = 0; i < gradesCount; i++) {
+                if (grades[i].getGroup() == group) {
+                    System.out.println(grades[i].studentInfo());
                 }
             }
         }
@@ -218,62 +233,26 @@ public class UniversityApp {
      */
 
     public void printAllStudents() {
-        int newArrayLength = 0;
-        for (int i = 0; i < groupCount; i++) {
-            newArrayLength += groups[i].getStudentsCounter();
-        }
-        int loopCounter = 0;
-        Student[] printStudents = new Student[newArrayLength];
-        for (int i = 0; i < groupCount; i++) {
-            for (int j = 0; j < (groups[i].getStudentsCounter()); j++) {
-                printStudents[loopCounter] = new Student(groups[i].students[j].getFirstName(),
-                        groups[i].students[j].getLastName(), groups[i].students[j].getIndex());
-                loopCounter++;
-            }
-        }
-
-        for (int i = 0; i < printStudents.length; i++) {
-            Student[] tmp = new Student[printStudents.length];
-            for (int j = printStudents.length - 1; j > i; j--) {
-                if (printStudents[j].getIndex() < printStudents[j - 1].getIndex()) {
-                    tmp[1] = printStudents[j - 1];
-                    printStudents[j - 1] = printStudents[i];
-                    printStudents[i] = tmp[1];
+        Student[] tmp = new Student[studentsPrintListCounter];
+        for (int i = 0; i < studentsPrintListCounter; i++) {
+            for (int j = studentsPrintListCounter - 1; j > 0; j--) {
+                if (studentsPrintList[j].getIndex() < studentsPrintList[j - 1].getIndex()) {
+                    tmp[0] = studentsPrintList[j];
+                    studentsPrintList[j] = studentsPrintList [j - 1];
+                    studentsPrintList [j - 1] = tmp[0];
                 }
             }
         }
-        for (int i = 0; i < printStudents.length - 1; i++) {
-            if (printStudents[i].getIndex() == printStudents[(i + 1 % printStudents.length)].getIndex()) {
-                printStudents[i] = null;
+        for (int i = 0; i < studentsPrintListCounter - 1; i++) {
+            if (studentsPrintList[i].getIndex() == studentsPrintList[(i + 1 % studentsPrintList.length)].getIndex()) {
+                studentsPrintList[i] = null;
                 i++;
             }
         }
-        int finalPrintArraySize = 0;
-        for (int i = 0; i < printStudents.length; i++) {
-            if (printStudents[i] != null) {
-                finalPrintArraySize++;
+        for (int i = 0; i < studentsPrintListCounter; i++) {
+            if (studentsPrintList[i] !=  null) {
+                System.out.println(studentsPrintList[i].studentInfo());
             }
         }
-        Student[] finalPrint = new Student[finalPrintArraySize];
-        int index = 0;
-        for (int i = 0; i < printStudents.length; i++) {
-            if (printStudents[i] != null) {
-                finalPrint[index] = printStudents[i];
-                index++;
-            }
-        }
-        for (Student student : finalPrint) {
-            student.printStudentInfo();
-        }
     }
-//        for (int i = 0; i < printStudents.length; i++) { // czy tak bedzie lepiej ???
-//            if (printStudents[i] != null) {
-//                printStudents[i].printStudentInfo();
-//            }
-//        }
-
-    boolean isGroupSameAsCode(int index, String code) {
-        return groups[index].getCode().equals(code);
-    }
-
 }

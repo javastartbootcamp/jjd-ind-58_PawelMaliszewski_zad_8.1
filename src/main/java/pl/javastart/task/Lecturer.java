@@ -26,7 +26,7 @@ public class Lecturer extends Person {
         this.degree = degree;
     }
 
-    String pirntinfo() {
+    public String pirntinfo() {
         return ", Prowadzący: " + degree + " " + getFirstName() + " " + getLastName();
     }
 }
