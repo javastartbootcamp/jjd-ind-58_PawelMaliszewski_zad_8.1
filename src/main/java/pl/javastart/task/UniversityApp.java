@@ -39,9 +39,7 @@ public class UniversityApp {
 
     private Lecturer findLecturer(int id) {
         for (int i = 0; i < lectureCount; i++) {
-            if (lecturers[i] == null) {
-                return null;
-            } else if (Objects.equals(lecturers[i].getId(), id)) {
+            if (Objects.equals(lecturers[i].getId(), id)) {
                 return lecturers[i];
             }
         }
@@ -74,9 +72,7 @@ public class UniversityApp {
 
     private Group findGroupByCode(String code) {
         for (int i = 0; i < groupCount; i++) {
-            if (groups[i] == null) {
-                return null;
-            } else if (Objects.equals(groups[i].getCode(), code)) {
+            if (Objects.equals(groups[i].getCode(), code)) {
                 return groups[i];
             }
         }
@@ -111,11 +107,9 @@ public class UniversityApp {
     }
 
     private Student findStudent(int index) {
-        for (int i = 0; i < groupCount; i++) {
-            for (int j = 0; j < groups[i].getStudentsCounter(); j++) {
-                if (groups[i].getStudents()[j].getIndex() == index) {
-                    return groups[i].getStudents()[j];
-                }
+        for (int i = 0; i < studentsPrintListCounter; i++) {
+            if (Objects.equals(studentsPrintList[i].getIndex(), index)) {
+                return groups[i].getStudents()[i];
             }
         }
         return null;
@@ -184,10 +178,10 @@ public class UniversityApp {
     }
 
     private boolean checkIfGredeExists(Student student, Group group) {
-        for (int i = 0; i < grades.length; i++) {
-            if (grades[i] == null) {
-                return false;
-            } else if (grades[i].getStudent() == student && grades[i].getGroup() == group && grades[i].getGrade() != 0) {
+        for (int i = 0; i < gradesCount; i++) {
+            if (Objects.equals(grades[i].getStudent(), student)
+                    && Objects.equals(grades[i].getGroup(), group)
+                    && grades[i].getGrade() != 0) {
                 return true;
             }
         }
